@@ -61,7 +61,7 @@ void zeraBackGround(Imagem3C *img, Imagem3C *bg)
 
     for(i = 0; i < altura; i++)
     {
-        for(j = 12 * img->largura/13; j < img->largura; j++)
+        for(j = 11 * img->largura/13; j < img->largura; j++)
         {
             img->dados[0][i][j] =  0;
             img->dados[1][i][j] =  0;
@@ -70,7 +70,7 @@ void zeraBackGround(Imagem3C *img, Imagem3C *bg)
     }
 
     char foostring [64];
-    sprintf (foostring, "t03.bmp", i);
+    sprintf (foostring, "t%d.bmp", i);
     salvaImagem3C (img, foostring);
 }
 
