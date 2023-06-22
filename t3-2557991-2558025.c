@@ -1,6 +1,7 @@
 #include "trabalho3.h"
+#include "imagem.h"
 #include <stdio.h>
-#include "gerador_de_testes.h"
+
 
 void zeraBackGround(Imagem3C *img, Imagem3C *bg);
 
@@ -9,11 +10,114 @@ int contaVeiculos (Imagem3C* img, Imagem3C* bg,
 
 void suavizaImagemX (Imagem3C* img);
 
+Imagem3C* copiaImagemX (Imagem3C* img);
+
+Imagem3C* criaImagem3CX (int largura, int altura);
+
 int contaVeiculos (Imagem3C* img, Imagem3C* bg, int contagem [N_TIPOS_DE_VEICULOS])
 {
     zeraBackGround(img, bg);
 
-    return 1;
+
+    int i,j,tamanho, total;
+    tamanho = 0;
+    total = 0;
+
+    for(i = 0; i < 4; i++)
+    {
+        contagem[i] = 0;
+    }
+
+    for(i = img->altura/8 - 10 + 50; i < 7 * img->altura/8; i+= 100)
+    {
+        for(j = 0; j < 11 * img->largura/13; j++)
+        {
+           if(img->dados[0][i][j] == 0 && img->dados[1][i][j] == 0 && img->dados[2][i][j] == 0)
+           {
+                if(img->dados[0][i][j + 1] == 0 && img->dados[1][i][j + 1] == 0 && img->dados[2][i][j + 1] == 0)
+                {
+                    if(img->dados[0][i][j + 2] == 0 && img->dados[1][i][j + 2] == 0 && img->dados[2][i][j + 2] == 0)
+                    {
+                        if(tamanho > 60)
+                        {
+                            if(tamanho > 150)
+                            {
+                                if(tamanho > 330)
+                                {
+                                    contagem[3]++;
+                                    tamanho = 0;
+                                }
+                                else
+                                {
+                                    contagem[2]++;
+                                    tamanho = 0;
+                                }
+                            }
+                            else
+                            {
+                                contagem[1]++;
+                                tamanho = 0;
+                            }
+                        }
+                        else
+                            tamanho = 0;
+                    }
+                    else
+                    {
+                        tamanho++;
+                    }
+                }
+                else
+                {
+                    tamanho++;
+                }
+           }
+           else
+           {
+                tamanho++;
+           }
+        }
+    }
+
+    for(i = img->altura/8 - 10 + 80; i < 7 * img->altura/8; i+= 100)
+    {
+        for(j = 0; j < 11 * img->largura/13; j++)
+        {
+           if(img->dados[0][i][j] == 0 && img->dados[1][i][j] == 0 && img->dados[2][i][j] == 0)
+           {
+                if(img->dados[0][i][j + 1] == 0 && img->dados[1][i][j + 1] == 0 && img->dados[2][i][j + 1] == 0)
+                {
+                    if(img->dados[0][i][j + 2] == 0 && img->dados[1][i][j + 2] == 0 && img->dados[2][i][j + 2] == 0)
+                    {
+                        if(tamanho > 35 && tamanho < 74)
+                        {
+                            contagem[0]++;
+                            tamanho = 0;
+                        }
+                        else
+                            tamanho = 0;
+                    }
+                    else
+                    {
+                        tamanho++;
+                    }
+                }
+                else
+                {
+                    tamanho++;
+                }
+           }
+           else
+           {
+                tamanho++;
+           }
+        }
+    }
+
+    for(i = 0; i < 4; i++)
+        total += contagem[i];
+
+    return (total);
 }
 //void suavizaImagemX (Imagem3C* img)
 void zeraBackGround(Imagem3C *img, Imagem3C *bg)
@@ -39,7 +143,7 @@ void zeraBackGround(Imagem3C *img, Imagem3C *bg)
         }
     }
 
-    for(i = 0; i < img->altura/8; i++)
+    for(i = 0; i < img->altura/8 - 10; i++)
     {
         for(j = 0; j < largura; j++)
         {
@@ -49,7 +153,7 @@ void zeraBackGround(Imagem3C *img, Imagem3C *bg)
         }
     }
 
-    for(i = 7 * img->altura/8; i < img->altura; i++)
+    for(i = 7 * img->altura/8 + 10; i < img->altura; i++)
     {
         for(j = 0; j < largura; j++)
         {
@@ -78,8 +182,8 @@ void suavizaImagemX (Imagem3C* img)
 {
 	unsigned long row, col;
 	int canal, peso_centro;
-	Imagem3C* copia; /* Precisamos guardar os dados originais. Seria bem mais eficiente guardar apenas uma janela, mas copiar tudo é bem mais simples... */
-	copia = copiaImagem (img);
+	Imagem3C* copia; /* Precisamos guardar os dados originais. Seria bem mais eficiente guardar apenas uma janela, mas copiar tudo Ã© bem mais simples... */
+	copia = copiaImagemX (img);
 
 	peso_centro = 20 ;
 	for (canal = 0; canal < 3; canal++)
@@ -97,3 +201,41 @@ void suavizaImagemX (Imagem3C* img)
 	destroiImagem3C (copia);
 }
 
+Imagem3C* criaImagem3CX (int largura, int altura)
+{
+	int i, j;
+	Imagem3C* img;
+
+	img = (Imagem3C*) malloc (sizeof (Imagem3C));
+
+	img->largura = largura;
+	img->altura = altura;
+
+	img->dados = (unsigned char***) malloc (sizeof (unsigned char**) * 3); /* Uma matriz por canal. */
+	for (i = 0; i < 3; i++)
+	{
+		img->dados [i] = (unsigned char**) malloc (sizeof (unsigned char*) * altura);
+		for (j = 0; j < altura; j++)
+			img->dados [i][j] = (unsigned char*) malloc (sizeof (unsigned char) * largura);
+	}
+
+	return (img);
+}
+
+Imagem3C* copiaImagemX (Imagem3C* img)
+{
+	unsigned long i, j, k;
+	Imagem3C* copia;
+
+	copia = criaImagem3CX (img->largura, img->altura);
+
+	if (!copia)
+		return (NULL);
+
+	for (i = 0; i < 3; i++)
+		for (j = 0; j < copia->altura; j++)
+			for (k = 0; k < copia->largura; k++)
+				copia->dados [i][j][k] = img->dados [i][j][k];
+
+	return (copia);
+}
